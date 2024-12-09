@@ -5,18 +5,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "mips.h"
-#define LINE_SIZE 32 // 缓存行数
-#define DATA_SIZE 32 // 数据块大小
+#include "shell.h"
+#define BLOCK_SIZE 32
+#define CACHE_SIZE 65536 // 64KB
+#define LINE_SIZE (CACHE_SIZE / BLOCK_SIZE)
 typedef struct
 {
     bool valid;               // 有效位
     uint32_t tag;             // 标记位
-    uint32_t data[DATA_SIZE]; // 数据
+    uint8_t data[BLOCK_SIZE]; // 数据
 } cache_line;
 
 typedef struct
 {
-    cache_line line[LINE_SIZE]; // 32行缓存
+    cache_line line[LINE_SIZE];
 } Cache;
 extern Cache cache;
 void init_cache();
