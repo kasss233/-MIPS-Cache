@@ -56,9 +56,9 @@ uint32_t inst_cache_read(uint32_t addr)
             return word;
         }
     }
-    inst_cache_delay = 49;
+    inst_cache_delay = 50;
     inst_get_ram_data(addr);
-    int line_index = inst_find_line_in_set(set_index, tag);
+    /*int line_index = inst_find_line_in_set(set_index, tag);
     if (line_index == -1)
     {
         printf("Error: data cache miss\n");
@@ -68,7 +68,8 @@ uint32_t inst_cache_read(uint32_t addr)
                     (icache.sets[set_index].lines[line_index].data[block_index + 1] << 8) |
                     (icache.sets[set_index].lines[line_index].data[block_index + 2] << 16) |
                     (icache.sets[set_index].lines[line_index].data[block_index + 3] << 24);
-    return word;
+    return word;*/
+    return 0;
 }
 void inst_get_ram_data(uint32_t addr)
 {

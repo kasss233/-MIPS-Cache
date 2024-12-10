@@ -26,6 +26,8 @@ Pipe_State pipe;
 
 void pipe_init()
 {
+    init_data_cache();
+    init_inst_cache();
     memset(&pipe, 0, sizeof(Pipe_State));
     pipe.PC = 0x00400000;
 }
@@ -161,7 +163,7 @@ void pipe_stage_mem()
         {
             val = data_cache_read(op->mem_addr & ~3);
         }
-        else
+        if (data_cache_delay > 0)
         {
             data_cache_delay--;
             return;
@@ -241,7 +243,7 @@ void pipe_stage_mem()
         {
             data_cache_write(op->mem_addr & ~3, val);
         }
-        else
+        if (data_cache_delay > 0)
         {
             data_cache_delay--;
             return;
@@ -264,7 +266,7 @@ void pipe_stage_mem()
         {
             data_cache_write(op->mem_addr & ~3, val);
         }
-        else
+        if (data_cache_delay > 0)
         {
             data_cache_delay--;
             return;
@@ -277,7 +279,7 @@ void pipe_stage_mem()
         {
             data_cache_write(op->mem_addr & ~3, val);
         }
-        else
+        if (data_cache_delay > 0)
         {
             data_cache_delay--;
             return;
@@ -766,7 +768,7 @@ void pipe_stage_fetch()
     {
         op->instruction = inst_cache_read(pipe.PC);
     }
-    else
+    if (inst_cache_delay > 0)
     {
         inst_cache_delay--;
         return;

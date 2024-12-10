@@ -56,9 +56,9 @@ uint32_t data_cache_read(uint32_t addr)
         }
     }
     // 没有命中
-    data_cache_delay += 49;
+    data_cache_delay += 50;
     get_ram_data(addr);
-    int line_index = data_find_line_in_set(set_index, tag);
+    /*int line_index = data_find_line_in_set(set_index, tag);
     if (line_index == -1)
     {
         printf("Error: data cache miss\n");
@@ -68,7 +68,8 @@ uint32_t data_cache_read(uint32_t addr)
                     (cache.sets[set_index].lines[line_index].data[block_index + 1] << 8) |
                     (cache.sets[set_index].lines[line_index].data[block_index + 2] << 16) |
                     (cache.sets[set_index].lines[line_index].data[block_index + 3] << 24);
-    return word;
+    return word;*/
+    return 0;
 }
 void data_cache_write(uint32_t addr, uint32_t data)
 {
@@ -88,9 +89,9 @@ void data_cache_write(uint32_t addr, uint32_t data)
             return;
         }
     }
-    data_cache_delay += 49;
+    data_cache_delay += 50;
     get_ram_data(addr);
-    int line_index = data_find_line_in_set(set_index, tag);
+    /*int line_index = data_find_line_in_set(set_index, tag);
     if (line_index == -1)
     {
         printf("Error: data cache miss\n");
@@ -100,7 +101,7 @@ void data_cache_write(uint32_t addr, uint32_t data)
     cache.sets[set_index].lines[line_index].data[block_index] = (data >> 0) & 0xFF;
     cache.sets[set_index].lines[line_index].data[block_index + 1] = (data >> 8) & 0xFF;
     cache.sets[set_index].lines[line_index].data[block_index + 2] = (data >> 16) & 0xFF;
-    cache.sets[set_index].lines[line_index].data[block_index + 3] = (data >> 24) & 0xFF;
+    cache.sets[set_index].lines[line_index].data[block_index + 3] = (data >> 24) & 0xFF;*/
 }
 void get_ram_data(uint32_t addr)
 {
@@ -161,7 +162,7 @@ void get_ram_data(uint32_t addr)
                 src += 4;
                 ram_address += 4;
             }
-            // data_cache_delay += 49; // 写回延迟，如果脏数据写回和加载新数据块是并行处理的（某些架构支持），则这两部分延迟可以合并，而不需要分别添加。
+            data_cache_delay += 50; // 写回延迟，如果脏数据写回和加载新数据块是并行处理的（某些架构支持），则这两部分延迟可以合并，而不需要分别添加。
         }
         cache.sets[set_index].lines[line_index].tag = tag;
         cache.sets[set_index].lines[line_index].valid = 1;

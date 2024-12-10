@@ -6,7 +6,7 @@
 #include "mips.h"
 #include "shell.h"
 #define ICACHE_SIZE 8192 // 64KB
-#define IBLOCK_SIZE 32
+#define IBLOCK_SIZE 64
 #define IWAYS 4
 #define ISET_SIZE 64
 #define ILINE_SIZE (ICACHE_SIZE / IBLOCK_SIZE)
