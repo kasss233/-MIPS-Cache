@@ -2,10 +2,12 @@
 #include "shell.h"
 #include "mips.h"
 #include "data_cache.h"
+#include "inst_cache.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+
 // #define DEBUG
 
 /* debug */
@@ -153,8 +155,18 @@ void pipe_stage_mem()
     Pipe_Op *op = pipe.mem_op;
 
     uint32_t val = 0;
-    if (op->is_mem)
-        val = data_cache_read(op->mem_addr & ~3);
+    if (op->is_mem) // 加入延迟
+    {
+        if (data_cache_delay == 0)
+        {
+            val = data_cache_read(op->mem_addr & ~3);
+        }
+        else
+        {
+            data_cache_delay--;
+            return;
+        }
+    }
 
     switch (op->opcode)
     {
@@ -225,7 +237,15 @@ void pipe_stage_mem()
             break;
         }
 
-        data_cache_write(op->mem_addr & ~3, val);
+        if (data_cache_delay == 0)
+        {
+            data_cache_write(op->mem_addr & ~3, val);
+        }
+        else
+        {
+            data_cache_delay--;
+            return;
+        }
         break;
 
     case OP_SH:
@@ -240,12 +260,28 @@ void pipe_stage_mem()
         printf("new word %08x\n", val);
 #endif
 
-        data_cache_write(op->mem_addr & ~3, val);
+        if (data_cache_delay == 0)
+        {
+            data_cache_write(op->mem_addr & ~3, val);
+        }
+        else
+        {
+            data_cache_delay--;
+            return;
+        }
         break;
 
     case OP_SW:
         val = op->mem_value;
-        data_cache_write(op->mem_addr & ~3, val);
+        if (data_cache_delay == 0)
+        {
+            data_cache_write(op->mem_addr & ~3, val);
+        }
+        else
+        {
+            data_cache_delay--;
+            return;
+        }
         break;
     }
 
@@ -726,8 +762,16 @@ void pipe_stage_fetch()
     Pipe_Op *op = malloc(sizeof(Pipe_Op));
     memset(op, 0, sizeof(Pipe_Op));
     op->reg_src1 = op->reg_src2 = op->reg_dst = -1;
-
-    op->instruction = mem_read_32(pipe.PC);
+    if (inst_cache_delay == 0)
+    {
+        op->instruction = inst_cache_read(pipe.PC);
+    }
+    else
+    {
+        inst_cache_delay--;
+        return;
+    }
+    // op->instruction = mem_read_32(pipe.PC);
     op->pc = pipe.PC;
     pipe.decode_op = op;
 

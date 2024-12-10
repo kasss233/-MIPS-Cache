@@ -1,5 +1,5 @@
-#ifndef CACHE
-#define CACHE
+#ifndef DATACACHE
+#define DATACACHE
 
 #include <stdio.h>
 #include <stdint.h>
@@ -31,6 +31,7 @@ typedef struct
     cache_set sets[SET_SIZE];
 } data_cache;
 extern data_cache cache;
+extern int data_cache_delay;
 void init_data_cache();
 void get_ram_data(uint32_t addr);
 void data_cache_write(uint32_t addr, uint32_t data);
