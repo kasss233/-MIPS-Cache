@@ -1,7 +1,7 @@
 #include "pipe.h"
 #include "shell.h"
 #include "mips.h"
-#include "cache.h"
+#include "data_cache.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -154,7 +154,7 @@ void pipe_stage_mem()
 
     uint32_t val = 0;
     if (op->is_mem)
-        val = mem_read_32(op->mem_addr & ~3);
+        val = data_cache_read(op->mem_addr & ~3);
 
     switch (op->opcode)
     {
@@ -225,7 +225,7 @@ void pipe_stage_mem()
             break;
         }
 
-        mem_write_32(op->mem_addr & ~3, val);
+        data_cache_write(op->mem_addr & ~3, val);
         break;
 
     case OP_SH:
@@ -240,12 +240,12 @@ void pipe_stage_mem()
         printf("new word %08x\n", val);
 #endif
 
-        mem_write_32(op->mem_addr & ~3, val);
+        data_cache_write(op->mem_addr & ~3, val);
         break;
 
     case OP_SW:
         val = op->mem_value;
-        mem_write_32(op->mem_addr & ~3, val);
+        data_cache_write(op->mem_addr & ~3, val);
         break;
     }
 
