@@ -8,7 +8,6 @@ void init_inst_cache()
         for (int j = 0; j < IWAYS; j++)
         {
             icache.sets[i].lines[j].valid = false;
-            icache.sets[i].lines[j].dirty = false;
             icache.sets[i].lines[j].tag = 0;
             icache.sets[i].lines[j].lru = 0;
             for (int k = 0; k < IBLOCK_SIZE; k++)
@@ -107,34 +106,17 @@ void inst_get_ram_data(uint32_t addr)
     }
     else // 没有找到空闲行
     {
-        uint8_t max_lru = 0;    // 找到最近最少使用
-        uint32_t write_tag = 0; // 标识缓存行中存储的数据所属的内存地址
+        uint8_t max_lru = 0; // 找到最近最少使用
         for (int i = 0; i < IWAYS; i++)
         {
             if (max_lru < icache.sets[set_index].lines[i].lru)
             {
                 max_lru = icache.sets[set_index].lines[i].lru;
                 line_index = i;
-                write_tag = icache.sets[set_index].lines[i].tag;
             }
-        }
-        if (icache.sets[set_index].lines[line_index].dirty) // 是脏数据
-        {
-            uint32_t ram_address = 0;
-            ram_address = (write_tag << 11) | (set_index << 5); // 计算地址
-            uint8_t *src = icache.sets[set_index].lines[line_index].data;
-            for (int i = 0; i < IBLOCK_SIZE / 4; i++)
-            {
-                uint32_t word = (src[0] << 0) | (src[1] << 8) | (src[2] << 16) | (src[3] << 24);
-                mem_write_32(ram_address, word); // 写回内存
-                src += 4;
-                ram_address += 4;
-            }
-            // inst_cache_delay += 49; // 写回延迟，如果脏数据写回和加载新数据块是并行处理的（某些架构支持），则这两部分延迟可以合并，而不需要分别添加。
         }
         icache.sets[set_index].lines[line_index].tag = tag;
         icache.sets[set_index].lines[line_index].valid = 1;
-        icache.sets[set_index].lines[line_index].lru = 0;
         inst_update_lru(set_index, line_index);
         uint8_t *dest = icache.sets[set_index].lines[line_index].data;
         for (int i = 0; i < IBLOCK_SIZE / 4; i++) // 循环 8 次，每次写入 4 字节

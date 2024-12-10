@@ -14,7 +14,6 @@
 typedef struct
 {
     bool valid;                // 有效位
-    bool dirty;                // 脏位
     uint8_t lru;               // LRU位
     uint32_t tag;              // 标记位
     uint8_t data[IBLOCK_SIZE]; // 数据
